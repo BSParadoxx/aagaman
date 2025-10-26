@@ -390,7 +390,7 @@ const englishText = `
 <p>I used to ask myself what it all meant and how it happened. Eventually, I stopped searching for answers. Living in the moment became the answer itself. The truth was never in words but in feeling. Now there is a sapling, its branches growing and buds beginning to open. One day it will become a tree, full of fruit, rich with shade, and strong enough to stand for years.</p>   
 <p style="text-align:right; font-weight:600;">— Rishav</p>`;
 
-// 📨 Open the envelope
+// 📨 Open envelope
 container.addEventListener('click', () => {
   if (!isOpen) {
     container.classList.add('open');
@@ -399,34 +399,27 @@ container.addEventListener('click', () => {
   }
 });
 
-// 📜 Close letter when tapping anywhere (except translation button)
-document.addEventListener('click', e => {
-  if (isOpen) {
-    const clickedTranslateBtn = e.target.id === 'translateBtn';
-    const clickedEnvelope = e.target.closest('#envelopeContainer');
+// 📜 Close logic (depends on translation mode)
+function handleClose(e) {
+  if (!isOpen) return;
 
-    // If not clicking translate button or unopened envelope
-    if (!clickedTranslateBtn && !clickedEnvelope) {
+  const clickedTranslateBtn = e.target.id === 'translateBtn';
+  const clickedEnvelope = e.target.closest('#envelopeContainer');
+  const clickedInsideLetter = e.target.closest('#letter');
+
+  // English mode → only close if click OUTSIDE the letter
+  // Nepali mode → close on ANY click (inside or outside)
+  if (!clickedTranslateBtn && !clickedEnvelope) {
+    if (showingNepali || (!clickedInsideLetter && !showingNepali)) {
       letter.classList.remove('show-letter');
       setTimeout(() => container.classList.remove('open'), 900);
       isOpen = false;
     }
   }
-});
+}
 
-// 🖐️ Support mobile taps
-document.addEventListener('touchstart', e => {
-  if (isOpen) {
-    const clickedTranslateBtn = e.target.id === 'translateBtn';
-    const clickedEnvelope = e.target.closest('#envelopeContainer');
-
-    if (!clickedTranslateBtn && !clickedEnvelope) {
-      letter.classList.remove('show-letter');
-      setTimeout(() => container.classList.remove('open'), 900);
-      isOpen = false;
-    }
-  }
-});
+document.addEventListener('click', handleClose);
+document.addEventListener('touchstart', handleClose);
 
 // 🌐 Toggle translation (Nepali ↔ English)
 translateBtn.addEventListener('click', e => {
